@@ -1,0 +1,63 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: uespe
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: examen
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: examen
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  iamRoleStatements:
+    - Effect: Allow
+      Action: 
+        - dynamodb:*
+      Resource: 
+        - arn:aws:dynamodb:us-east-1:692859937629:table/libraryTableVB
+
+
+functions:
+  createBook:
+    handler: src/CreateBook.createBook
+    events:
+      - httpApi:
+          path: /books
+          method: post
+  getBook:
+    handler: src/GetBook.getBook
+    events:
+      - httpApi:
+          path: /books
+          method: get
+  updateBook:
+    handler: src/UpdateBook.updateBook
+    events:
+      - httpApi:
+          path: /books/{id}
+          method: put
+  getBookId:
+    handler: src/getBookId.getBookId
+    events:
+      - httpApi:
+          path: /books/{bookId}  # RUTA AJUSTADA
+          method: get
+  deleteBook:
+    handler: src/DeleteBook.deleteBook
+    events:
+      - httpApi:
+          path: /books/{bookId}
+          method: delete
+
+resources:
+  Resources:
+      libraryTableVB:
+        Type: AWS::DynamoDB::Table
+        Properties:
+          TableName: libraryTableVB
+          BillingMode: PAY_PER_REQUEST
+          AttributeDefinitions:
+            - AttributeName: id
+              AttributeType: S
+          KeySchema:
+            - AttributeName: id
+              KeyType: HASH
